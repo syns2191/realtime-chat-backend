@@ -1,0 +1,1 @@
+ALTER TABLE "conversations_participants" ADD COLUMN "is_active" boolean DEFAULT false;
