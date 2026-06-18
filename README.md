@@ -1,159 +1,143 @@
-# Turborepo starter
+# Realtime Chats Backend
 
-This Turborepo starter is maintained by the Turborepo core team.
+A scalable realtime chat backend built with Fastify, Socket.io, PostgreSQL, and Redis. Supports private and group conversations, friend system, JWT authentication, and message delivery status tracking.
 
-## Using this example
+---
 
-Run the following command:
+## Features
 
-```sh
-npx create-turbo@latest
+- **Authentication** — Register, login with JWT access + refresh tokens, password hashing with bcrypt
+- **Friend System** — Send, accept, reject friend requests, unfriend, search users by email
+- **Conversations** — Create private or group conversations, list with last message and unread count
+- **Messaging** — Send and receive messages with delivery status (pending / sent / read)
+- **Realtime** — Socket.io for instant messaging and notifications
+- **Scalable** — Redis adapter for Socket.io enables horizontal scaling across multiple server instances
+
+---
+
+## Tech Stack
+
+| Layer | Library |
+|---|---|
+| Framework | [Fastify 5](https://fastify.dev) |
+| Realtime | [Socket.io 4](https://socket.io) |
+| Auth | [@fastify/jwt](https://github.com/fastify/fastify-jwt) + [bcrypt](https://github.com/kelektiv/node.bcrypt.js) |
+| Database | PostgreSQL + [Drizzle ORM](https://orm.drizzle.team) |
+| Cache / Pub-Sub | Redis + [ioredis](https://github.com/redis/ioredis) |
+| Validation | [TypeBox](https://github.com/sinclairzx81/typebox) via `@fastify/type-provider-typebox` |
+| Monorepo | [Turborepo](https://turbo.build) + pnpm workspaces |
+| Language | TypeScript |
+
+---
+
+## Project Structure
+
+```
+realtime-chats-backend/
+├── apps/
+│   └── api/                        # Fastify API server
+│       └── src/
+│           ├── config/             # Environment config
+│           ├── db/
+│           │   ├── schema/         # Drizzle table definitions
+│           │   ├── migrations/     # SQL migrations
+│           │   ├── index.ts        # DB connection pool
+│           │   └── migrate.ts      # Migration runner
+│           ├── modules/
+│           │   ├── auth/           # Login & register routes
+│           │   ├── user/           # User CRUD routes
+│           │   ├── chat/           # Conversation & message routes
+│           │   ├── friendship/     # Friend request routes
+│           │   └── friend-list/    # Accepted friends routes
+│           ├── plugins/
+│           │   ├── cors.ts         # CORS setup
+│           │   ├── drizzle.ts      # DB plugin
+│           │   ├── jwt.ts          # JWT plugin
+│           │   └── socket.ts       # Socket.io + Redis adapter
+│           ├── socket/
+│           │   ├── chat.ts         # Socket event handlers
+│           │   └── middleware.ts   # Socket auth middleware
+│           ├── libs/               # Shared TypeBox schemas
+│           ├── types/              # Fastify type augmentations
+│           ├── app.ts              # App setup & route registration
+│           └── index.ts            # Server entry point
+└── packages/
+    └── typescript-config/          # Shared tsconfig
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## Getting Started
 
-### Apps and Packages
+### Prerequisites
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- Node.js >= 18
+- pnpm >= 9
+- PostgreSQL
+- Redis
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Clone and Install
 
-### Utilities
+```sh
+git clone https://github.com/your-username/realtime-chats-backend.git
+cd realtime-chats-backend
+pnpm install
+```
 
-This Turborepo has some additional tools already setup for you:
+### Configure Environment
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+```sh
+cp apps/api/.env-example apps/api/.env
+```
+
+Edit `apps/api/.env`:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=your_db_name
+
+JWT_SECRET=your_jwt_secret
+JWT_EXP=86400
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_AUTH=
+
+PORT=3000
+NODE_ENV=development
+```
+
+### Run Database Migrations
+
+```sh
+pnpm --filter @repo/api db:migrate
+```
+
+### Development
+
+```sh
+pnpm dev
+```
 
 ### Build
 
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
 ```sh
-cd my-turborepo
-turbo build
+pnpm build
 ```
 
-Without global `turbo`, use your package manager:
+The API compiles to `apps/api/dist/`.
+
+### Start Production
 
 ```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+pnpm --filter @repo/api start
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## API Reference
 
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+All protected routes require the header: `Authorization: Bearer <token>`
