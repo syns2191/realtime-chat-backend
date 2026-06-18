@@ -58,3 +58,9 @@ profile*
 *flamegraph*
 
 /src/generated/prisma
+
+# TypeScript build output (emitted into src/ before outDir was set)
+src/**/*.js
+src/**/*.d.ts
+src/**/*.d.ts.map
+src/**/*.tsbuildinfo
