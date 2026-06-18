@@ -6,6 +6,7 @@ import chatRoutes from "./modules/chat/chat.route";
 import friendshipRoutes from "./modules/friendship/friendship.route";
 import drizzlePlugin from "./plugins/drizzle";
 import jwtPlugin from "./plugins/jwt";
+import redisPlugin from "./plugins/redis";
 import socketPlugin from "./plugins/socket";
 
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
@@ -16,6 +17,7 @@ const app = Fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 app.register(corsPlugin);
 app.register(drizzlePlugin);
 app.register(jwtPlugin);
+app.register(redisPlugin);
 app.register(socketPlugin);
 // Routes
 app.register(userRoutes, { prefix: "/api/users" });

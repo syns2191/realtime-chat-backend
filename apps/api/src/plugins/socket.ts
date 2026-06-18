@@ -1,17 +1,11 @@
 import fp from "fastify-plugin";
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
-import Redis from "ioredis";
 import { FastifyPluginAsync } from "fastify";
-import { config } from "../config";
 import { registerSocketMiddleware } from "../socket/middleware";
 
 const scoketPlugin: FastifyPluginAsync = async (fastify) => {
-  const pubClient = new Redis({
-    port: Number(config.REDIS_PORT) || 6379,
-    host: config.REDIS_HOST || "localhost",
-    password: config.REDIS_AUTH || undefined,
-  });
+  const pubClient = fastify.redis;
   const subClient = pubClient.duplicate();
 
   const io = new Server(fastify.server, {

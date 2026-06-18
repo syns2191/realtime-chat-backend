@@ -1,6 +1,6 @@
 import fp from "fastify-plugin";
 import { FastifyPluginAsync } from "fastify";
-import { db, DB } from "../db";
+import { db, pool, DB } from "../db";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -10,6 +10,10 @@ declare module "fastify" {
 
 const drizzlePlugin: FastifyPluginAsync = async (fastify) => {
   fastify.decorate("db", db);
+
+  fastify.addHook("onClose", async () => {
+    await pool.end();
+  });
 };
 
 export default fp(drizzlePlugin);
