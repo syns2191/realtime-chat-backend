@@ -16,4 +16,7 @@ export const config = {
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_AUTH: process.env.REDIS_AUTH,
   REDIS_TLS: process.env.REDIS_TLS,
+  CORS_ORIGINS: process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+    : ["http://localhost:3000", "http://localhost:5173", "http://localhost:8000"],
 };

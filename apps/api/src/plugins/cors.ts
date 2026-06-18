@@ -1,15 +1,11 @@
 import fp from "fastify-plugin";
 import cors, { FastifyCorsOptions } from "@fastify/cors";
+import { config } from "../config";
 
 export default fp<FastifyCorsOptions>(async (fastify) => {
   fastify.register(cors, {
     origin: (origin, cb) => {
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://yourdomain.com",
-        "http://localhost:8000"
-      ];
+      const allowedOrigins = config.CORS_ORIGINS;
 
       // Allow requests with no origin (mobile apps, curl, Postman)
       if (!origin) return cb(null, true);
