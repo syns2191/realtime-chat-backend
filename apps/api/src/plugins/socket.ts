@@ -3,10 +3,11 @@ import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import { FastifyPluginAsync } from "fastify";
 import { registerSocketMiddleware } from "../socket/middleware";
+import "./redis";
 
 const scoketPlugin: FastifyPluginAsync = async (fastify) => {
   const pubClient = fastify.redis;
-  const subClient = pubClient.duplicate();
+  const subClient = fastify.redisSub;
 
   const io = new Server(fastify.server, {
     cors: { origin: "*" },
